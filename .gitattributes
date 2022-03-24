@@ -1,0 +1,10 @@
+*.sh                   text eol=lf
+*.go                   text eol=lf
+*.md                   text eol=lf
+*.gitignore            text eol=lf
+*.gitattributes        text eol=lf
+*.ts                   text eol=lf
+*.js                   text eol=lf
+protos/*               linguist-generated
+**/api-extractor.json  linguist-language=JSON-with-Comments
+makefile               text eol=lf
