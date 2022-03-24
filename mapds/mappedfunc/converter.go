@@ -4,6 +4,7 @@ import (
 	"gitlab.com/evatix-go/core/coredata/corejson"
 	"gitlab.com/evatix-go/core/coredata/corepayload"
 	"gitlab.com/evatix-go/core/coreinterface"
+	"gitlab.com/evatix-go/core/errcore"
 	"gitlab.com/evatix-go/core/isany"
 	"gitlab.com/evatix-go/errorwrapper"
 	"gitlab.com/evatix-go/errorwrapper/errdata/errbyte"
@@ -79,6 +80,9 @@ func (it converter) AnyToBytesOrSerializedBytes(
 	case []byte:
 		return errbyte.New.Results.ValuesOnly(
 			casted)
+	case string:
+		return errbyte.New.Results.ValuesOnly(
+			[]byte(casted))
 	case corejson.Jsoner:
 		jsonResult := casted.Json()
 		if jsonResult.HasError() {
@@ -118,6 +122,9 @@ func (it converter) AnyToBytesOrSerializedBytes(
 
 		return errbyte.New.Results.ValuesOnly(
 			allBytes)
+	case error:
+		return errbyte.New.Results.ValuesOnly(
+			[]byte(errcore.ToString(casted)))
 	}
 
 	serializeJsonResult := corejson.Serialize.Apply(
