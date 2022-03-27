@@ -297,17 +297,16 @@ func (it BytesFuncMap) ExecAll(
 		return it.executeByOrderedNamesAll(samePayloads)
 	}
 
-	displayModel := it.BaseExecutorInfo.ToPtr()
+	info := it.BaseExecutorInfo.SafeInfo()
 	emptyCollector := errwrappers.Empty()
 
 	for _, errFunc := range it.FunctionsMap {
 		// found, exec
-		errorWrapper := errFunc(samePayloads)
+		errWrap := errFunc(samePayloads)
 		wrappedError := wrapErrorWithDetailsInstance.
 			wrapErrorWrapper(
-				displayModel,
-				it.ErrorWrapOptions,
-				errorWrapper,
+				errWrap,
+				info,
 			)
 
 		emptyCollector.AddWrapperPtr(wrappedError)
@@ -319,12 +318,10 @@ func (it BytesFuncMap) ExecAll(
 func (it BytesFuncMap) executeByOrderedNamesAll(
 	samePayloads []byte,
 ) *errwrappers.Collection {
-	displayModel := it.BaseExecutorInfo.ToPtr()
 	emptyCollector := errwrappers.Empty()
 
 	for _, name := range it.OrderedNames {
 		wrappedErr := it.execInternal(
-			displayModel,
 			name,
 			samePayloads)
 		emptyCollector.AddWrapperPtr(wrappedErr)
@@ -346,10 +343,7 @@ func (it BytesFuncMap) Exec(
 	name string,
 	payloads []byte,
 ) *errorwrapper.Wrapper {
-	displayModel := it.BaseExecutorInfo.ToPtr()
-
 	return it.execInternal(
-		displayModel,
 		name,
 		payloads)
 }
@@ -358,10 +352,7 @@ func (it BytesFuncMap) ExecNamer(
 	namer enuminf.Namer,
 	payloads []byte,
 ) *errorwrapper.Wrapper {
-	displayModel := it.BaseExecutorInfo.ToPtr()
-
 	return it.execInternal(
-		displayModel,
 		namer.Name(),
 		payloads)
 }
@@ -386,9 +377,9 @@ func (it BytesFuncMap) NotFoundError(
 
 	// not found
 	return wrapErrorWithDetailsInstance.notFoundError(
-		it.BaseExecutorInfo.ToPtr(),
-		it.ErrorWrapOptions,
-		name)
+		name,
+		it.SafeInfo(),
+	)
 }
 
 func (it BytesFuncMap) GetFuncOrErrorWrapper(
@@ -405,13 +396,11 @@ func (it BytesFuncMap) GetFuncOrErrorWrapper(
 
 	// not found
 	return nil, wrapErrorWithDetailsInstance.notFoundError(
-		it.BaseExecutorInfo.ToPtr(),
-		it.ErrorWrapOptions,
-		name)
+		name,
+		it.SafeInfo())
 }
 
 func (it BytesFuncMap) execInternal(
-	displayModel *BaseExecutorInfo,
 	name string,
 	payloads []byte,
 ) *errorwrapper.Wrapper {
@@ -419,9 +408,9 @@ func (it BytesFuncMap) execInternal(
 
 	if !hasFunc {
 		return wrapErrorWithDetailsInstance.notFoundError(
-			displayModel,
-			it.ErrorWrapOptions,
-			name)
+			name,
+			it.SafeInfo(),
+		)
 	}
 
 	// found, executor
@@ -430,11 +419,10 @@ func (it BytesFuncMap) execInternal(
 		return nil
 	}
 
-	return wrapErrorWithDetailsInstance.wrapErrorWrapper(
-		displayModel,
-		it.ErrorWrapOptions,
+	return wrapErrorWithDetailsInstance.wrapErrorWrapperPayloads(
 		errorWrapper,
-	)
+		it.SafeInfo(),
+		payloads)
 }
 
 func (it BytesFuncMap) ExecByNamesLock(
@@ -459,14 +447,13 @@ func (it BytesFuncMap) ExecByNames(
 		return emptyCollector
 	}
 
-	displayModel := it.BaseExecutorInfo.ToPtr()
-
 	for _, name := range names {
 		wrappedErr := it.execInternal(
-			displayModel,
 			name,
 			samePayloads)
-		emptyCollector.AddWrapperPtr(wrappedErr)
+
+		emptyCollector.AddWrapperPtr(
+			wrappedErr)
 	}
 
 	return emptyCollector
