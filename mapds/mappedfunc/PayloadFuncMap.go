@@ -6,6 +6,7 @@ import (
 	"gitlab.com/evatix-go/core/codestack"
 	"gitlab.com/evatix-go/core/corecsv"
 	"gitlab.com/evatix-go/core/coredata/coredynamic"
+	"gitlab.com/evatix-go/core/coredata/corejson"
 	"gitlab.com/evatix-go/core/coredata/corepayload"
 	"gitlab.com/evatix-go/core/coreinterface"
 	"gitlab.com/evatix-go/core/coreinterface/enuminf"
@@ -425,18 +426,17 @@ func (it PayloadFuncMap) ExecAll(
 		return it.executeByOrderedNamesAll(payloadWrapper)
 	}
 
-	displayModel := it.BaseExecutorInfo.ToPtr()
+	payloadBytes, _ := payloadWrapper.Serialize()
 	emptyCollector := errwrappers.Empty()
 
 	for _, errFunc := range it.FunctionsMap {
 		// found, exec
 		errorWrapper := errFunc(payloadWrapper)
 		wrappedError := wrapErrorWithDetailsInstance.
-			wrapErrorWrapper(
-				displayModel,
-				it.ErrorWrapOptions,
+			wrapErrorWrapperPayloads(
 				errorWrapper,
-			)
+				it.SafeInfo(),
+				payloadBytes)
 
 		emptyCollector.AddWrapperPtr(wrappedError)
 	}
@@ -447,12 +447,10 @@ func (it PayloadFuncMap) ExecAll(
 func (it PayloadFuncMap) executeByOrderedNamesAll(
 	payloadWrapper *corepayload.PayloadWrapper,
 ) *errwrappers.Collection {
-	displayModel := it.BaseExecutorInfo.ToPtr()
 	emptyCollector := errwrappers.Empty()
 
 	for _, name := range it.OrderedNames {
 		wrappedErr := it.execInternal(
-			displayModel,
 			name,
 			payloadWrapper)
 		emptyCollector.AddWrapperPtr(wrappedErr)
@@ -489,10 +487,7 @@ func (it PayloadFuncMap) Exec(
 	name string,
 	payloadWrapper *corepayload.PayloadWrapper,
 ) *errorwrapper.Wrapper {
-	displayModel := it.BaseExecutorInfo.ToPtr()
-
 	return it.execInternal(
-		displayModel,
 		name,
 		payloadWrapper)
 }
@@ -507,7 +502,8 @@ func (it PayloadFuncMap) ExecUsingAny(
 	if parsingErr.HasError() {
 		return it.failedToExecuteExecutorErrorWrap(
 			name,
-			parsingErr)
+			parsingErr,
+			payloadWrapperAsAny)
 	}
 
 	return it.Exec(name, payloadWrapper)
@@ -525,7 +521,8 @@ func (it PayloadFuncMap) ExecUsingBytes(
 	if parsingErr != nil {
 		return it.failedToExecuteExecutorErrorWrap(
 			name,
-			errnew.Error.Default(errtype.ParsingFailed, parsingErr))
+			errnew.Error.Default(errtype.ParsingFailed, parsingErr),
+			payloadWrapperAsBytes)
 	}
 
 	return it.Exec(name, payloadWrapper)
@@ -535,10 +532,7 @@ func (it PayloadFuncMap) ExecNamer(
 	namer enuminf.Namer,
 	payloadWrapper *corepayload.PayloadWrapper,
 ) *errorwrapper.Wrapper {
-	displayModel := it.BaseExecutorInfo.ToPtr()
-
 	return it.execInternal(
-		displayModel,
 		namer.Name(),
 		payloadWrapper)
 }
@@ -552,10 +546,7 @@ func (it PayloadFuncMap) ExecNamerIf(
 		return nil
 	}
 
-	displayModel := it.BaseExecutorInfo.ToPtr()
-
 	return it.execInternal(
-		displayModel,
 		namer.Name(),
 		payloadWrapper)
 }
@@ -580,9 +571,8 @@ func (it PayloadFuncMap) NotFoundError(
 
 	// not found
 	return wrapErrorWithDetailsInstance.notFoundError(
-		it.BaseExecutorInfo.ToPtr(),
-		it.ErrorWrapOptions,
-		name)
+		name,
+		it.SafeInfo())
 }
 
 func (it PayloadFuncMap) GetFuncOrErrorWrapper(
@@ -599,9 +589,8 @@ func (it PayloadFuncMap) GetFuncOrErrorWrapper(
 
 	// not found
 	return nil, wrapErrorWithDetailsInstance.notFoundError(
-		it.BaseExecutorInfo.ToPtr(),
-		it.ErrorWrapOptions,
-		name)
+		name,
+		it.SafeInfo())
 }
 
 func (it PayloadFuncMap) IsPreCheckNull() bool {
@@ -609,7 +598,6 @@ func (it PayloadFuncMap) IsPreCheckNull() bool {
 }
 
 func (it PayloadFuncMap) execInternal(
-	displayModel *BaseExecutorInfo,
 	name string,
 	payloadWrapper *corepayload.PayloadWrapper,
 ) *errorwrapper.Wrapper {
@@ -622,10 +610,10 @@ func (it PayloadFuncMap) execInternal(
 	errFunc, hasFunc := it.FunctionsMap[name]
 
 	if !hasFunc {
-		return wrapErrorWithDetailsInstance.notFoundError(
-			displayModel,
-			it.ErrorWrapOptions,
-			name)
+		return wrapErrorWithDetailsInstance.notFoundErrorWithPayloads(
+			name,
+			it.SafeInfo(),
+			payloadWrapper)
 	}
 
 	// found, executor
@@ -634,11 +622,10 @@ func (it PayloadFuncMap) execInternal(
 		return nil
 	}
 
-	return wrapErrorWithDetailsInstance.wrapErrorWrapper(
-		displayModel,
-		it.ErrorWrapOptions,
+	return wrapErrorWithDetailsInstance.wrapErrorWrapperPayloadsAny(
 		errorWrapper,
-	)
+		it.SafeInfo(),
+		payloadWrapper)
 }
 
 func (it PayloadFuncMap) nullErrorWrapper(
@@ -646,8 +633,6 @@ func (it PayloadFuncMap) nullErrorWrapper(
 	anyItem interface{},
 ) *errorwrapper.Wrapper {
 	return wrapErrorWithDetailsInstance.wrapErrorWrapper(
-		it.ToPtr(),
-		it.ErrorWrapOptions,
 		errnew.Null.WithRefs(
 			"null received for "+executorName+" - executor",
 			anyItem,
@@ -655,25 +640,29 @@ func (it PayloadFuncMap) nullErrorWrapper(
 				Variable: "executor-name",
 				Value:    executorName,
 			}),
+		it.SafeInfo(),
 	)
 }
 
 func (it PayloadFuncMap) failedToExecuteExecutorErrorWrap(
 	executorName string,
 	existingErr *errorwrapper.Wrapper,
+	payloadAny interface{},
 ) *errorwrapper.Wrapper {
-	if existingErr == nil {
+	if existingErr.IsEmpty() {
 		return nil
 	}
 
-	return wrapErrorWithDetailsInstance.wrapErrorWrapper(
-		it.ToPtr(),
-		it.ErrorWrapOptions,
-		existingErr.ConcatNew().MsgRefOne(
-			codestack.Skip1,
-			executorName+" executor couldn't execute.",
-			"executor-name",
-			executorName),
+	wrappedErr := existingErr.ConcatNew().MsgRefOne(
+		codestack.Skip1,
+		executorName+" executor couldn't execute.",
+		"executor-name",
+		executorName)
+
+	return wrapErrorWithDetailsInstance.wrapErrorWrapperPayloads(
+		wrappedErr,
+		it.SafeInfo(),
+		corejson.AnyTo.SerializedJsonResult(payloadAny).SafeBytes(),
 	)
 }
 
@@ -699,11 +688,8 @@ func (it PayloadFuncMap) ExecByNames(
 		return emptyCollector
 	}
 
-	displayModel := it.BaseExecutorInfo.ToPtr()
-
 	for _, name := range names {
 		wrappedErr := it.execInternal(
-			displayModel,
 			name,
 			payloadWrapper)
 
@@ -724,8 +710,6 @@ func (it PayloadFuncMap) ExecByNamesChecking(
 		return emptyCollector
 	}
 
-	displayModel := it.BaseExecutorInfo.ToPtr()
-
 	for _, name := range names {
 		isExec := isExecuteFunc(
 			payloadWrapper,
@@ -736,7 +720,6 @@ func (it PayloadFuncMap) ExecByNamesChecking(
 		}
 
 		wrappedErr := it.execInternal(
-			displayModel,
 			name,
 			payloadWrapper)
 		emptyCollector.AddWrapperPtr(wrappedErr)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"gitlab.com/evatix-go/core/coredata/corepayload"
+	"gitlab.com/evatix-go/core/coretaskinfo"
 	"gitlab.com/evatix-go/core/errcore"
 	"gitlab.com/evatix-go/errorwrapper"
 	"gitlab.com/evatix-go/errorwrapper/errnew"
@@ -13,13 +14,23 @@ import (
 func main() {
 	poayloadExecutorMap := mappedfunc.PayloadFuncMap{
 		BaseExecutorInfo: mappedfunc.BaseExecutorInfo{
-			RootName:         "some root name",
-			Description:      "desc",
-			Url:              "url",
-			HintUrl:          "hint",
-			ErrorUrl:         "error url",
-			ErrorWrapOptions: mappedfunc.ErrorWrapOptions{},
-			OrderedNames:     nil,
+			Info: coretaskinfo.Info{
+				RootName:    "some root name",
+				Description: "desc",
+				Url:         "url",
+				HintUrl:     "hint",
+				ErrorUrl:    "error url",
+				ExcludeOptions: coretaskinfo.ExcludingOptions{
+					IsExcludeUrl:                 false,
+					IsExcludeHintUrl:             false,
+					IsExcludeRootName:            false,
+					IsExcludeErrorUrl:            false,
+					IsExcludeAdditionalErrorWrap: false,
+					IsSecureText:                 false,
+					IsExcludeDescription:         false,
+				},
+			},
+			OrderedNames: nil,
 		},
 		AnyValidatorFunctions: []mappedfunc.AnyItemValidatorFunc{
 			func(anyInput interface{}) *errorwrapper.Wrapper {

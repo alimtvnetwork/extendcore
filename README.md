@@ -45,7 +45,6 @@ To go get as root:
 
 Provides and reduces code lines for dealing with common DRYness of the codebase.
 
-
 ## Folder Structure
 
 ```

@@ -4,101 +4,70 @@ import (
 	"errors"
 
 	"gitlab.com/evatix-go/core/codestack"
+	"gitlab.com/evatix-go/core/coredata/corejson"
+	"gitlab.com/evatix-go/core/coretaskinfo"
 	"gitlab.com/evatix-go/errorwrapper"
+	"gitlab.com/evatix-go/errorwrapper/errnew"
 	"gitlab.com/evatix-go/errorwrapper/errtype"
-	"gitlab.com/evatix-go/errorwrapper/refs"
 )
 
 type wrapErrorWithDetails struct{}
 
 func (it wrapErrorWithDetails) wrapErrorWrapper(
-	displayModel *BaseExecutorInfo,
-	options ErrorWrapOptions,
-	errorWrapper *errorwrapper.Wrapper,
+	existingErr *errorwrapper.Wrapper,
+	info *coretaskinfo.Info,
 ) *errorwrapper.Wrapper {
-	if options.IsExcludeErrorAdditionalWrap || errorWrapper.IsEmpty() {
-		return errorWrapper
+	if it.isExcludeErrorWrap(info) || existingErr.IsEmpty() {
+		return existingErr
 	}
 
-	references := it.generateReferences(
-		displayModel,
-		options)
+	return errnew.Friendly.WrapErrorWithDetailsNoPayloads(
+		existingErr,
+		info)
+}
 
-	return errorWrapper.ConcatNew().MsgRefsOnly(
-		references.Items()...)
+func (it wrapErrorWithDetails) isExcludeErrorWrap(info *coretaskinfo.Info) bool {
+	return info != nil && info.ExcludeOptions.IsExcludeAdditionalErrorWrap
 }
 
 func (it wrapErrorWithDetails) wrapErrorWrapperPayloads(
-	displayModel *BaseExecutorInfo,
-	options ErrorWrapOptions,
-	errorWrapper *errorwrapper.Wrapper,
+	existingErr *errorwrapper.Wrapper,
+	info *coretaskinfo.Info,
 	payloads []byte,
 ) *errorwrapper.Wrapper {
-	if options.IsExcludeErrorAdditionalWrap || errorWrapper.IsEmpty() {
-		return errorWrapper
+	if it.isExcludeErrorWrap(info) || existingErr.IsEmpty() {
+		return existingErr
 	}
 
-	references := it.generateReferences(
-		displayModel,
-		options)
-
-	var bytesToString string
-	if len(payloads) > 0 {
-		bytesToString = string(payloads)
-	}
-
-	references.AddIf(
-		options.IsIncludePayloads(),
-		"Payloads",
-		bytesToString,
-	)
-
-	return errorWrapper.ConcatNew().MsgRefsOnly(
-		references.Items()...)
+	return errnew.Friendly.WrapErrorWithDetailsPayloads(
+		existingErr,
+		info,
+		payloads)
 }
 
-func (it wrapErrorWithDetails) generateReferences(
-	displayModel *BaseExecutorInfo,
-	options ErrorWrapOptions,
-) *refs.Collection {
-	references := refs.New4()
+func (it wrapErrorWithDetails) wrapErrorWrapperPayloadsAny(
+	existingErr *errorwrapper.Wrapper,
+	info *coretaskinfo.Info,
+	payloadsAny interface{},
+) *errorwrapper.Wrapper {
+	if it.isExcludeErrorWrap(info) || existingErr.IsEmpty() {
+		return existingErr
+	}
 
-	references.AddIf(
-		options.IsIncludeRootName(),
-		"Executor Mapper Name",
-		displayModel.RootName)
-
-	references.AddIf(
-		options.IsIncludeDescription(),
-		"Description",
-		displayModel.Description)
-
-	references.AddIf(
-		options.IsIncludeUrl(),
-		"Url",
-		displayModel.Url)
-
-	references.AddIf(
-		options.IsIncludeHintUrl(),
-		"Hint Url",
-		displayModel.HintUrl)
-
-	references.AddIf(
-		options.IsIncludeErrorUrl(),
-		"Error Url",
-		displayModel.ErrorUrl)
-
-	return references
+	return errnew.Friendly.WrapErrorWithDetailsPayloads(
+		existingErr,
+		info,
+		corejson.AnyTo.SerializedJsonResult(payloadsAny).SafeBytes())
 }
 
 func (it wrapErrorWithDetails) notFoundError(
-	displayModel *BaseExecutorInfo,
-	options ErrorWrapOptions,
 	keyName string,
+	info *coretaskinfo.Info,
 ) *errorwrapper.Wrapper {
-	references := it.generateReferences(
-		displayModel,
-		options)
+	references := errnew.Friendly.CompiledReferencesNoPayloads(
+		nil,
+		info,
+	)
 
 	return errorwrapper.NewErrorPlusMsgUsingAllParamsPtr(
 		codestack.Skip1,
@@ -106,5 +75,27 @@ func (it wrapErrorWithDetails) notFoundError(
 		true,
 		errors.New(keyName+" is not found in the processing map."),
 		"",
-		references)
+		references.ToPtr())
+}
+
+// notFoundErrorWithPayloads
+//
+//  can be bytes or any
+func (it wrapErrorWithDetails) notFoundErrorWithPayloads(
+	keyName string,
+	info *coretaskinfo.Info,
+	payloads interface{}, // will be cast to bytes to marshalled
+) *errorwrapper.Wrapper {
+	references := errnew.Friendly.CompiledReferencesPayloads(
+		nil,
+		info,
+		corejson.AnyTo.SerializedJsonResult(payloads).SafeBytes())
+
+	return errorwrapper.NewErrorPlusMsgUsingAllParamsPtr(
+		codestack.Skip1,
+		errtype.KeyNotFoundInMap,
+		true,
+		errors.New(keyName+" is not found in the processing map."),
+		"",
+		references.ToPtr())
 }

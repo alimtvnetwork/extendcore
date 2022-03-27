@@ -219,16 +219,14 @@ func (it ErrFuncMap) ExecAll() *errwrappers.Collection {
 		return it.executeByOrderedNamesAll()
 	}
 
-	displayModel := it.BaseExecutorInfo.ToPtr()
 	emptyCollector := errwrappers.Empty()
 
 	for _, errFunc := range it.FunctionsMap {
 		// found, exec
 		errorWrapper := errFunc()
 		wrappedError := wrapErrorWithDetailsInstance.wrapErrorWrapper(
-			displayModel,
-			it.ErrorWrapOptions,
 			errorWrapper,
+			it.SafeInfo(),
 		)
 
 		emptyCollector.AddWrapperPtr(wrappedError)
@@ -238,11 +236,10 @@ func (it ErrFuncMap) ExecAll() *errwrappers.Collection {
 }
 
 func (it ErrFuncMap) executeByOrderedNamesAll() *errwrappers.Collection {
-	displayModel := it.BaseExecutorInfo.ToPtr()
 	emptyCollector := errwrappers.Empty()
 
 	for _, name := range it.OrderedNames {
-		wrappedErr := it.execInternal(displayModel, name)
+		wrappedErr := it.execInternal(name)
 		emptyCollector.AddWrapperPtr(wrappedErr)
 	}
 
@@ -257,28 +254,22 @@ func (it ErrFuncMap) ExecLock(name string) *errorwrapper.Wrapper {
 }
 
 func (it ErrFuncMap) Exec(name string) *errorwrapper.Wrapper {
-	displayModel := it.BaseExecutorInfo.ToPtr()
-
-	return it.execInternal(displayModel, name)
+	return it.execInternal(name)
 }
 
 func (it ErrFuncMap) ExecNamer(namer enuminf.Namer) *errorwrapper.Wrapper {
-	displayModel := it.BaseExecutorInfo.ToPtr()
-
-	return it.execInternal(displayModel, namer.Name())
+	return it.execInternal(namer.Name())
 }
 
 func (it ErrFuncMap) execInternal(
-	displayModel *BaseExecutorInfo,
 	name string,
 ) *errorwrapper.Wrapper {
 	errFunc, hasFunc := it.FunctionsMap[name]
 
 	if !hasFunc {
 		return wrapErrorWithDetailsInstance.notFoundError(
-			displayModel,
-			it.ErrorWrapOptions,
-			name)
+			name,
+			it.SafeInfo())
 	}
 
 	// found, executor
@@ -288,9 +279,8 @@ func (it ErrFuncMap) execInternal(
 	}
 
 	return wrapErrorWithDetailsInstance.wrapErrorWrapper(
-		displayModel,
-		it.ErrorWrapOptions,
 		errorWrapper,
+		it.SafeInfo(),
 	)
 }
 
@@ -312,10 +302,8 @@ func (it ErrFuncMap) ExecByNames(
 		return emptyCollector
 	}
 
-	displayModel := it.BaseExecutorInfo.ToPtr()
-
 	for _, name := range names {
-		wrappedErr := it.execInternal(displayModel, name)
+		wrappedErr := it.execInternal(name)
 		emptyCollector.AddWrapperPtr(wrappedErr)
 	}
 
