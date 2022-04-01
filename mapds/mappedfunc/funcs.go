@@ -11,4 +11,9 @@ type (
 	PayloadWrapperToFuncNameGetterFunc func(payloadWrapper *corepayload.PayloadWrapper) (executorName string)
 	PayloadValidatorFunc               func(payload *corepayload.PayloadWrapper) *errorwrapper.Wrapper
 	AnyItemValidatorFunc               func(anyInput interface{}) *errorwrapper.Wrapper
+	PayloadWrapperMiddleware           func(
+		middlewareName string,
+		self *PayloadFuncMap,
+		input interface{},
+	) (output interface{}, errWrap *errorwrapper.Wrapper)
 )

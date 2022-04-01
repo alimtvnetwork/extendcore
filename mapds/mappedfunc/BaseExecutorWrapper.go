@@ -163,7 +163,7 @@ func (it BaseExecutorWrapper) JsonStringMust() string {
 }
 
 func (it BaseExecutorWrapper) String() string {
-	return it.Json().PrettyJsonString()
+	return it.JsonPtr().PrettyJsonString()
 }
 
 func (it BaseExecutorWrapper) ToPtr() *BaseExecutorWrapper {

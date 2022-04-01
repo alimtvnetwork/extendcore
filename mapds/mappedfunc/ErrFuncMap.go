@@ -15,7 +15,7 @@ import (
 
 type ErrFuncMap struct {
 	BaseExecutorInfo
-	FunctionsMap map[string]errfunc.WrapperFunc
+	FunctionsMap map[string]errfunc.WrapperFunc // key : any name, used for calling
 }
 
 func (it *ErrFuncMap) Append(
@@ -64,10 +64,6 @@ func (it ErrFuncMap) LastIndex() int {
 
 func (it ErrFuncMap) HasIndex(index int) bool {
 	return it.LastIndex() >= index
-}
-
-func (it ErrFuncMap) RemoveAt(index int) (isSuccess bool) {
-	panic("not supported for map")
 }
 
 func (it ErrFuncMap) Set(

@@ -109,7 +109,7 @@ func (it *BaseExecutorInfo) JsonStringMust() string {
 }
 
 func (it *BaseExecutorInfo) String() string {
-	return it.Json().PrettyJsonString()
+	return it.JsonPtr().PrettyJsonString()
 }
 
 func (it BaseExecutorInfo) ToPtr() *BaseExecutorInfo {

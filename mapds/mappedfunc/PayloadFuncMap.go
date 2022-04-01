@@ -20,6 +20,7 @@ import (
 type PayloadFuncMap struct {
 	BaseExecutorInfo
 	IsSkipPreCheckNull    bool
+	Middlewares           map[string]PayloadWrapperMiddleware
 	AnyValidatorFunctions []AnyItemValidatorFunc
 	ValidatorFunctions    []PayloadValidatorFunc
 	FunctionsMap          map[string]PayloadWrapperExecutorFunc
@@ -135,8 +136,70 @@ func (it PayloadFuncMap) HasIndex(index int) bool {
 	return it.LastIndex() >= index
 }
 
-func (it PayloadFuncMap) RemoveAt(index int) (isSuccess bool) {
-	panic("not supported for map")
+func (it *PayloadFuncMap) MiddlewaresLength() int {
+	if it == nil || it.Middlewares == nil {
+		return 0
+	}
+
+	return len(it.Middlewares)
+}
+
+func (it *PayloadFuncMap) HasAnyMiddlewares() bool {
+	return it.MiddlewaresLength() > 0
+}
+
+func (it *PayloadFuncMap) IsEmptyMiddlewares() bool {
+	return it.MiddlewaresLength() == 0
+}
+
+func (it *PayloadFuncMap) ExecAllMiddlewares(
+	isContinueOnError bool,
+	input interface{},
+) *errwrappers.Collection {
+	if it.IsEmptyMiddlewares() {
+		return nil
+	}
+	errCollection := errwrappers.Empty()
+	var previousOutput interface{}
+	var errWrap *errorwrapper.Wrapper
+
+	index := -1
+	for middlewareName, middleWareProcessor := range it.Middlewares {
+		index++
+
+		if index == 0 {
+			previousOutput, errWrap = middleWareProcessor(
+				middlewareName,
+				it,
+				input)
+		} else {
+			previousOutput, errWrap = middleWareProcessor(
+				middlewareName,
+				it,
+				previousOutput)
+			// todo fix mutating
+		}
+
+		if errWrap.HasError() && index == 0 {
+			errCollection.AddWrapperPtr(
+				it.failedToExecuteMiddlewareErrorWrap(
+					middlewareName,
+					errWrap,
+					input))
+		} else if errWrap.HasError() && index == 0 {
+			errCollection.AddWrapperPtr(
+				it.failedToExecuteMiddlewareErrorWrap(
+					middlewareName,
+					errWrap,
+					previousOutput))
+		}
+
+		if !isContinueOnError && errCollection.HasError() {
+			return errCollection
+		}
+	}
+
+	return errCollection
 }
 
 func (it PayloadFuncMap) Set(
@@ -658,6 +721,28 @@ func (it PayloadFuncMap) failedToExecuteExecutorErrorWrap(
 		executorName+" executor couldn't execute.",
 		"executor-name",
 		executorName)
+
+	return wrapErrorWithDetailsInstance.wrapErrorWrapperPayloads(
+		wrappedErr,
+		it.SafeInfo(),
+		corejson.AnyTo.SerializedJsonResult(payloadAny).SafeBytes(),
+	)
+}
+
+func (it PayloadFuncMap) failedToExecuteMiddlewareErrorWrap(
+	middleware string,
+	existingErr *errorwrapper.Wrapper,
+	payloadAny interface{},
+) *errorwrapper.Wrapper {
+	if existingErr.IsEmpty() {
+		return nil
+	}
+
+	wrappedErr := existingErr.ConcatNew().MsgRefOne(
+		codestack.Skip1,
+		middleware+" middleware failed execute.",
+		"middleware-name",
+		middleware)
 
 	return wrapErrorWithDetailsInstance.wrapErrorWrapperPayloads(
 		wrappedErr,
