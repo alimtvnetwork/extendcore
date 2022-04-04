@@ -6,12 +6,8 @@ import (
 )
 
 type (
-	BytesExecutorFunc                  func(payloads []byte) *errorwrapper.Wrapper
-	PayloadWrapperExecutorFunc         func(payloadWrapper *corepayload.PayloadWrapper) *errorwrapper.Wrapper
 	PayloadWrapperToFuncNameGetterFunc func(payloadWrapper *corepayload.PayloadWrapper) (executorName string)
-	PayloadValidatorFunc               func(payload *corepayload.PayloadWrapper) *errorwrapper.Wrapper
-	AnyItemValidatorFunc               func(anyInput interface{}) *errorwrapper.Wrapper
-	PayloadWrapperMiddleware           func(
+	PayloadWrapperMiddlewareFunc       func(
 		middlewareName string,
 		self *PayloadFuncMap,
 		input interface{},

@@ -9,13 +9,14 @@ import (
 	"gitlab.com/evatix-go/core/coreinterface"
 	"gitlab.com/evatix-go/core/coreinterface/enuminf"
 	"gitlab.com/evatix-go/errorwrapper"
+	"gitlab.com/evatix-go/errorwrapper/errfunc"
 	"gitlab.com/evatix-go/errorwrapper/errnew"
 	"gitlab.com/evatix-go/errorwrapper/errwrappers"
 )
 
 type BytesFuncMap struct {
 	BaseExecutorInfo
-	FunctionsMap map[string]BytesExecutorFunc
+	FunctionsMap map[string]errfunc.BytesExecutorFunc
 }
 
 func (it *BytesFuncMap) Append(
@@ -50,7 +51,7 @@ func (it *BytesFuncMap) ConcatNew(
 	return cloned.Append(isSkipOnExist, executorsMap)
 }
 
-func (it BytesFuncMap) Items() map[string]BytesExecutorFunc {
+func (it BytesFuncMap) Items() map[string]errfunc.BytesExecutorFunc {
 	return it.FunctionsMap
 }
 
@@ -72,7 +73,7 @@ func (it BytesFuncMap) RemoveAt(index int) (isSuccess bool) {
 
 func (it BytesFuncMap) Set(
 	name string,
-	executor BytesExecutorFunc,
+	executor errfunc.BytesExecutorFunc,
 ) (isAddedNewly bool) {
 	isAddedNewly = it.IsMissingFunc(name)
 	it.FunctionsMap[name] = executor
@@ -83,7 +84,7 @@ func (it BytesFuncMap) Set(
 func (it BytesFuncMap) SetIf(
 	isAdd bool,
 	name string,
-	executor BytesExecutorFunc,
+	executor errfunc.BytesExecutorFunc,
 ) (isAddedNewly bool) {
 	if !isAdd {
 		return it.IsMissingFunc(name)
@@ -94,14 +95,14 @@ func (it BytesFuncMap) SetIf(
 
 func (it BytesFuncMap) AddOrUpdate(
 	name string,
-	executor BytesExecutorFunc,
+	executor errfunc.BytesExecutorFunc,
 ) (isAddedNewly bool) {
 	return it.Set(name, executor)
 }
 
 func (it *BytesFuncMap) SetChain(
 	name string,
-	executor BytesExecutorFunc,
+	executor errfunc.BytesExecutorFunc,
 ) *BytesFuncMap {
 	it.Set(name, executor)
 
@@ -111,7 +112,7 @@ func (it *BytesFuncMap) SetChain(
 func (it *BytesFuncMap) SetChainIf(
 	isSet bool,
 	name string,
-	executor BytesExecutorFunc,
+	executor errfunc.BytesExecutorFunc,
 ) *BytesFuncMap {
 	if !isSet {
 		return it
@@ -124,7 +125,7 @@ func (it *BytesFuncMap) SetChainIf(
 
 func (it *BytesFuncMap) AddOrUpdateChain(
 	name string,
-	executor BytesExecutorFunc,
+	executor errfunc.BytesExecutorFunc,
 ) *BytesFuncMap {
 	it.Set(name, executor)
 
@@ -184,7 +185,7 @@ func (it BytesFuncMap) AllNamesSorted() []string {
 	return names
 }
 
-func (it BytesFuncMap) Get(name string) BytesExecutorFunc {
+func (it BytesFuncMap) Get(name string) errfunc.BytesExecutorFunc {
 	return it.FunctionsMap[name]
 }
 
@@ -253,13 +254,13 @@ func (it BytesFuncMap) GetFuncPayloadWrapperByRawPayloads(
 	}
 }
 
-func (it BytesFuncMap) GetWithStat(name string) (BytesExecutorFunc, bool) {
+func (it BytesFuncMap) GetWithStat(name string) (errfunc.BytesExecutorFunc, bool) {
 	currFunc, has := it.FunctionsMap[name]
 
 	return currFunc, has
 }
 
-func (it BytesFuncMap) GetWithStatByNamer(name enuminf.Namer) (BytesExecutorFunc, bool) {
+func (it BytesFuncMap) GetWithStatByNamer(name enuminf.Namer) (errfunc.BytesExecutorFunc, bool) {
 	currFunc, has := it.FunctionsMap[name.Name()]
 
 	return currFunc, has
@@ -385,7 +386,7 @@ func (it BytesFuncMap) NotFoundError(
 func (it BytesFuncMap) GetFuncOrErrorWrapper(
 	name string,
 ) (
-	executor BytesExecutorFunc,
+	executor errfunc.BytesExecutorFunc,
 	notFoundErr *errorwrapper.Wrapper,
 ) {
 	currentFunc, hasFunc := it.FunctionsMap[name]
@@ -505,12 +506,12 @@ func (it BytesFuncMap) Clone() BytesFuncMap {
 	if it.IsEmpty() {
 		return BytesFuncMap{
 			BaseExecutorInfo: it.BaseExecutorInfo.Clone(),
-			FunctionsMap:     map[string]BytesExecutorFunc{},
+			FunctionsMap:     map[string]errfunc.BytesExecutorFunc{},
 		}
 	}
 
 	newMap := make(
-		map[string]BytesExecutorFunc,
+		map[string]errfunc.BytesExecutorFunc,
 		it.Length())
 	for name, executor := range it.FunctionsMap {
 		newMap[name] = executor

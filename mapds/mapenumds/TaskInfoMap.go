@@ -129,7 +129,39 @@ func (it *TaskInfoMap) GetInfoUsingNamer(
 	return it.Items[strtype.New(namer.Name())]
 }
 
-func (it *TaskInfoMap) ErrorWrapperWrap(
+func (it *TaskInfoMap) ErrWrap(
+	name string,
+	existingErrWrap *errorwrapper.Wrapper,
+) *errorwrapper.Wrapper {
+	if it.IsEmpty() || name == "" {
+		return existingErrWrap
+	}
+
+	info := it.GetInfo(name)
+
+	return errnew.Ref.WrapExistingErrWrapWithInfo(
+		info,
+		existingErrWrap)
+}
+
+func (it *TaskInfoMap) ErrWrapWithPayloadsAny(
+	name string,
+	existingErrWrap *errorwrapper.Wrapper,
+	payloadsAny interface{},
+) *errorwrapper.Wrapper {
+	if it.IsEmpty() || name == "" {
+		return existingErrWrap
+	}
+
+	info := it.GetInfo(name)
+
+	return errnew.Ref.WrapExistingErrWrapWithInfoPayloadsAny(
+		info,
+		existingErrWrap,
+		payloadsAny)
+}
+
+func (it *TaskInfoMap) FriendlyErrWrap(
 	name string,
 	friendlyMessage string,
 	existingErrWrap *errorwrapper.Wrapper,
@@ -154,7 +186,7 @@ func (it *TaskInfoMap) ErrorWrapperWrap(
 		nil)
 }
 
-func (it *TaskInfoMap) ErrorWrapperWrapPayloads(
+func (it *TaskInfoMap) FriendlyErrWrapWithPayloads(
 	name string,
 	friendlyMessage string,
 	existingErrWrap *errorwrapper.Wrapper,
@@ -178,6 +210,31 @@ func (it *TaskInfoMap) ErrorWrapperWrapPayloads(
 		logtype.Error,
 		info,
 		payloads)
+}
+
+func (it *TaskInfoMap) FriendlyErrWrapWithPayloadsAny(
+	name string,
+	friendlyMessage string,
+	existingErrWrap *errorwrapper.Wrapper,
+	payloadsAny interface{},
+) *errorwrapper.FriendlyError {
+	if it.IsEmpty() || name == "" {
+		return errnew.Friendly.Create(
+			friendlyMessage,
+			existingErrWrap)
+	}
+
+	if existingErrWrap.IsEmpty() {
+		return nil
+	}
+
+	info := it.GetInfo(name)
+
+	return errnew.Friendly.PayloadsAnyInfo(
+		friendlyMessage,
+		existingErrWrap,
+		info,
+		payloadsAny)
 }
 
 func (it *TaskInfoMap) String() string {

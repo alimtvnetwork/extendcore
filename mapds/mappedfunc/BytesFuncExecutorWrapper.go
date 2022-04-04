@@ -1,10 +1,13 @@
 package mappedfunc
 
-import "gitlab.com/evatix-go/errorwrapper"
+import (
+	"gitlab.com/evatix-go/errorwrapper"
+	"gitlab.com/evatix-go/errorwrapper/errfunc"
+)
 
 type BytesFuncExecutorWrapper struct {
 	BaseExecutorWrapper
-	Executor BytesExecutorFunc
+	Executor errfunc.BytesExecutorFunc
 }
 
 func (it *BytesFuncExecutorWrapper) IsNull() bool {

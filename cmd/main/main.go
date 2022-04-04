@@ -7,6 +7,7 @@ import (
 	"gitlab.com/evatix-go/core/coretaskinfo"
 	"gitlab.com/evatix-go/core/errcore"
 	"gitlab.com/evatix-go/errorwrapper"
+	"gitlab.com/evatix-go/errorwrapper/errfunc"
 	"gitlab.com/evatix-go/errorwrapper/errnew"
 	"gitlab.com/evatix-go/extendcore/mapds/mappedfunc"
 )
@@ -32,21 +33,21 @@ func main() {
 			},
 			OrderedNames: nil,
 		},
-		AnyValidatorFunctions: []mappedfunc.AnyItemValidatorFunc{
+		AnyValidatorFunctions: []errfunc.AnyItemValidatorFunc{
 			func(anyInput interface{}) *errorwrapper.Wrapper {
 				fmt.Println("any validator called")
 
 				return nil
 			},
 		},
-		ValidatorFunctions: []mappedfunc.PayloadValidatorFunc{
+		ValidatorFunctions: []errfunc.PayloadValidatorFunc{
 			func(payload *corepayload.PayloadWrapper) *errorwrapper.Wrapper {
 				print("validator called")
 
 				return errnew.NotFound.KeyMessage("payload key issues")
 			},
 		},
-		FunctionsMap: map[string]mappedfunc.PayloadWrapperExecutorFunc{
+		FunctionsMap: map[string]errfunc.PayloadWrapperExecutorFunc{
 			"task1": func(payloadWrapper *corepayload.PayloadWrapper) *errorwrapper.Wrapper {
 				fmt.Println("task 1")
 				fmt.Println(payloadWrapper.PrettyJsonString())

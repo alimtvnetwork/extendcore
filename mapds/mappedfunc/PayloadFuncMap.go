@@ -11,6 +11,7 @@ import (
 	"gitlab.com/evatix-go/core/coreinterface"
 	"gitlab.com/evatix-go/core/coreinterface/enuminf"
 	"gitlab.com/evatix-go/errorwrapper"
+	"gitlab.com/evatix-go/errorwrapper/errfunc"
 	"gitlab.com/evatix-go/errorwrapper/errnew"
 	"gitlab.com/evatix-go/errorwrapper/errtype"
 	"gitlab.com/evatix-go/errorwrapper/errwrappers"
@@ -20,10 +21,10 @@ import (
 type PayloadFuncMap struct {
 	BaseExecutorInfo
 	IsSkipPreCheckNull    bool
-	Middlewares           map[string]PayloadWrapperMiddleware
-	AnyValidatorFunctions []AnyItemValidatorFunc
-	ValidatorFunctions    []PayloadValidatorFunc
-	FunctionsMap          map[string]PayloadWrapperExecutorFunc
+	Middlewares           []PayloadWrapperMiddleware
+	AnyValidatorFunctions []errfunc.AnyItemValidatorFunc
+	ValidatorFunctions    []errfunc.PayloadValidatorFunc
+	FunctionsMap          map[string]errfunc.PayloadWrapperExecutorFunc
 }
 
 func (it *PayloadFuncMap) AnyValidate(
@@ -120,7 +121,7 @@ func (it *PayloadFuncMap) ConcatNew(
 	return cloned.Append(isSkipOnExist, executorsMap)
 }
 
-func (it PayloadFuncMap) Items() map[string]PayloadWrapperExecutorFunc {
+func (it PayloadFuncMap) Items() map[string]errfunc.PayloadWrapperExecutorFunc {
 	return it.FunctionsMap
 }
 
@@ -163,17 +164,15 @@ func (it *PayloadFuncMap) ExecAllMiddlewares(
 	var previousOutput interface{}
 	var errWrap *errorwrapper.Wrapper
 
-	index := -1
-	for middlewareName, middleWareProcessor := range it.Middlewares {
-		index++
-
+	for index, middlewareModel := range it.Middlewares {
+		middlewareName := middlewareModel.Name
 		if index == 0 {
-			previousOutput, errWrap = middleWareProcessor(
+			previousOutput, errWrap = middlewareModel.MiddlewareFunc(
 				middlewareName,
 				it,
 				input)
 		} else {
-			previousOutput, errWrap = middleWareProcessor(
+			previousOutput, errWrap = middlewareModel.MiddlewareFunc(
 				middlewareName,
 				it,
 				previousOutput)
@@ -204,7 +203,7 @@ func (it *PayloadFuncMap) ExecAllMiddlewares(
 
 func (it PayloadFuncMap) Set(
 	name string,
-	executor PayloadWrapperExecutorFunc,
+	executor errfunc.PayloadWrapperExecutorFunc,
 ) (isAddedNewly bool) {
 	isAddedNewly = it.IsMissingFunc(name)
 	it.FunctionsMap[name] = executor
@@ -215,7 +214,7 @@ func (it PayloadFuncMap) Set(
 func (it PayloadFuncMap) SetIf(
 	isAdd bool,
 	name string,
-	executor PayloadWrapperExecutorFunc,
+	executor errfunc.PayloadWrapperExecutorFunc,
 ) (isAddedNewly bool) {
 	if !isAdd {
 		return it.IsMissingFunc(name)
@@ -226,14 +225,14 @@ func (it PayloadFuncMap) SetIf(
 
 func (it PayloadFuncMap) AddOrUpdate(
 	name string,
-	executor PayloadWrapperExecutorFunc,
+	executor errfunc.PayloadWrapperExecutorFunc,
 ) (isAddedNewly bool) {
 	return it.Set(name, executor)
 }
 
 func (it *PayloadFuncMap) SetChain(
 	name string,
-	executor PayloadWrapperExecutorFunc,
+	executor errfunc.PayloadWrapperExecutorFunc,
 ) *PayloadFuncMap {
 	it.Set(name, executor)
 
@@ -243,7 +242,7 @@ func (it *PayloadFuncMap) SetChain(
 func (it *PayloadFuncMap) SetChainIf(
 	isSet bool,
 	name string,
-	executor PayloadWrapperExecutorFunc,
+	executor errfunc.PayloadWrapperExecutorFunc,
 ) *PayloadFuncMap {
 	if !isSet {
 		return it
@@ -256,7 +255,7 @@ func (it *PayloadFuncMap) SetChainIf(
 
 func (it *PayloadFuncMap) AddOrUpdateChain(
 	name string,
-	executor PayloadWrapperExecutorFunc,
+	executor errfunc.PayloadWrapperExecutorFunc,
 ) *PayloadFuncMap {
 	it.Set(name, executor)
 
@@ -316,7 +315,7 @@ func (it PayloadFuncMap) AllNamesSorted() []string {
 	return names
 }
 
-func (it PayloadFuncMap) Get(name string) PayloadWrapperExecutorFunc {
+func (it PayloadFuncMap) Get(name string) errfunc.PayloadWrapperExecutorFunc {
 	return it.FunctionsMap[name]
 }
 
@@ -385,7 +384,7 @@ func (it PayloadFuncMap) GetFuncPayloadWrapperByRawPayloads(
 	}
 }
 
-func (it PayloadFuncMap) GetWithStat(name string) (PayloadWrapperExecutorFunc, bool) {
+func (it PayloadFuncMap) GetWithStat(name string) (errfunc.PayloadWrapperExecutorFunc, bool) {
 	currFunc, has := it.FunctionsMap[name]
 
 	return currFunc, has
@@ -492,9 +491,9 @@ func (it PayloadFuncMap) ExecAll(
 	payloadBytes, _ := payloadWrapper.Serialize()
 	emptyCollector := errwrappers.Empty()
 
-	for _, errFunc := range it.FunctionsMap {
+	for _, executorFunc := range it.FunctionsMap {
 		// found, exec
-		errorWrapper := errFunc(payloadWrapper)
+		errorWrapper := executorFunc(payloadWrapper)
 		wrappedError := wrapErrorWithDetailsInstance.
 			wrapErrorWrapperPayloads(
 				errorWrapper,
@@ -641,7 +640,7 @@ func (it PayloadFuncMap) NotFoundError(
 func (it PayloadFuncMap) GetFuncOrErrorWrapper(
 	name string,
 ) (
-	executor PayloadWrapperExecutorFunc,
+	executor errfunc.PayloadWrapperExecutorFunc,
 	notFoundErr *errorwrapper.Wrapper,
 ) {
 	currentFunc, hasFunc := it.FunctionsMap[name]
@@ -669,6 +668,8 @@ func (it PayloadFuncMap) execInternal(
 			name,
 			payloadWrapper)
 	}
+
+	// TODO middleware
 
 	errFunc, hasFunc := it.FunctionsMap[name]
 
@@ -859,12 +860,12 @@ func (it PayloadFuncMap) Clone() PayloadFuncMap {
 	if it.IsEmpty() {
 		return PayloadFuncMap{
 			BaseExecutorInfo: it.BaseExecutorInfo.Clone(),
-			FunctionsMap:     map[string]PayloadWrapperExecutorFunc{},
+			FunctionsMap:     map[string]errfunc.PayloadWrapperExecutorFunc{},
 		}
 	}
 
 	newMap := make(
-		map[string]PayloadWrapperExecutorFunc,
+		map[string]errfunc.PayloadWrapperExecutorFunc,
 		it.Length())
 	for name, executor := range it.FunctionsMap {
 		newMap[name] = executor

@@ -2,13 +2,14 @@ package mappedfunc
 
 import (
 	"gitlab.com/evatix-go/errorwrapper"
+	"gitlab.com/evatix-go/errorwrapper/errfunc"
 	"gitlab.com/evatix-go/errorwrapper/errnew"
 	"gitlab.com/evatix-go/errorwrapper/errtype"
 )
 
 type PayloadFuncExecutorWrapper struct {
 	BaseExecutorWrapper
-	Executor PayloadWrapperExecutorFunc
+	Executor errfunc.PayloadWrapperExecutorFunc
 }
 
 func (it *PayloadFuncExecutorWrapper) IsNull() bool {
