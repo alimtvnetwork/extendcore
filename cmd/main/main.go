@@ -21,7 +21,7 @@ func main() {
 				Url:         "url",
 				HintUrl:     "hint",
 				ErrorUrl:    "error url",
-				ExcludeOptions: coretaskinfo.ExcludingOptions{
+				ExcludeOptions: &coretaskinfo.ExcludingOptions{
 					IsExcludeUrl:                 false,
 					IsExcludeHintUrl:             false,
 					IsExcludeRootName:            false,
