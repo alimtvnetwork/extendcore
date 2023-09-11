@@ -1,8 +1,8 @@
 package mappedfunc
 
 import (
-	"gitlab.com/evatix-go/errorwrapper"
-	"gitlab.com/evatix-go/errorwrapper/errfunc"
+	"gitlab.com/auk-go/errorwrapper"
+	"gitlab.com/auk-go/errorwrapper/errfunc"
 )
 
 type BytesFuncExecutorWrapper struct {

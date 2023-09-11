@@ -3,15 +3,15 @@ package mappedfunc
 import (
 	"sort"
 
-	"gitlab.com/evatix-go/core/corecsv"
-	"gitlab.com/evatix-go/core/coredata/coredynamic"
-	"gitlab.com/evatix-go/core/coredata/corepayload"
-	"gitlab.com/evatix-go/core/coreinterface"
-	"gitlab.com/evatix-go/core/coreinterface/enuminf"
-	"gitlab.com/evatix-go/errorwrapper"
-	"gitlab.com/evatix-go/errorwrapper/errfunc"
-	"gitlab.com/evatix-go/errorwrapper/errnew"
-	"gitlab.com/evatix-go/errorwrapper/errwrappers"
+	"gitlab.com/auk-go/core/corecsv"
+	"gitlab.com/auk-go/core/coredata/coredynamic"
+	"gitlab.com/auk-go/core/coredata/corepayload"
+	"gitlab.com/auk-go/core/coreinterface"
+	"gitlab.com/auk-go/core/coreinterface/enuminf"
+	"gitlab.com/auk-go/errorwrapper"
+	"gitlab.com/auk-go/errorwrapper/errfunc"
+	"gitlab.com/auk-go/errorwrapper/errnew"
+	"gitlab.com/auk-go/errorwrapper/errwrappers"
 )
 
 type BytesFuncMap struct {
@@ -191,9 +191,9 @@ func (it BytesFuncMap) Get(name string) errfunc.BytesExecutorFunc {
 
 // GetFuncPayloadWrapperCategoryByRawPayloads
 //
-//  deserializes payload to payload wrapper and
-//  then usages' payload category name to
-//  get to the executor
+//	deserializes payload to payload wrapper and
+//	then usages' payload category name to
+//	get to the executor
 func (it BytesFuncMap) GetFuncPayloadWrapperCategoryByRawPayloads(
 	payloads []byte,
 ) (executorWrapper *BytesFuncExecutorWrapper) {
@@ -204,9 +204,9 @@ func (it BytesFuncMap) GetFuncPayloadWrapperCategoryByRawPayloads(
 
 // GetFuncPayloadWrapperNameByRawPayloads
 //
-//  deserializes payload to payload wrapper and
-//  then usages' payload name to
-//  get to the executor
+//	deserializes payload to payload wrapper and
+//	then usages' payload name to
+//	get to the executor
 func (it BytesFuncMap) GetFuncPayloadWrapperNameByRawPayloads(
 	payloads []byte,
 ) (executorWrapper *BytesFuncExecutorWrapper) {
@@ -217,10 +217,10 @@ func (it BytesFuncMap) GetFuncPayloadWrapperNameByRawPayloads(
 
 // GetFuncPayloadWrapperByRawPayloads
 //
-//  deserializes payload to payload wrapper and
-//  then usages' the func executorNameGetter to get the executor name
-//  using payloadWrapper then get to the executor and
-//  returns the final wrapper
+//	deserializes payload to payload wrapper and
+//	then usages' the func executorNameGetter to get the executor name
+//	using payloadWrapper then get to the executor and
+//	returns the final wrapper
 func (it BytesFuncMap) GetFuncPayloadWrapperByRawPayloads(
 	payloads []byte,
 	executorNameGetter PayloadWrapperToFuncNameGetterFunc,

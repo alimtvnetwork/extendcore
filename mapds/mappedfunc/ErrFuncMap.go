@@ -3,14 +3,14 @@ package mappedfunc
 import (
 	"sort"
 
-	"gitlab.com/evatix-go/core/corecsv"
-	"gitlab.com/evatix-go/core/coredata/coredynamic"
-	"gitlab.com/evatix-go/core/coreinterface"
-	"gitlab.com/evatix-go/core/coreinterface/enuminf"
-	"gitlab.com/evatix-go/errorwrapper"
-	"gitlab.com/evatix-go/errorwrapper/errfunc"
-	"gitlab.com/evatix-go/errorwrapper/errnew"
-	"gitlab.com/evatix-go/errorwrapper/errwrappers"
+	"gitlab.com/auk-go/core/corecsv"
+	"gitlab.com/auk-go/core/coredata/coredynamic"
+	"gitlab.com/auk-go/core/coreinterface"
+	"gitlab.com/auk-go/core/coreinterface/enuminf"
+	"gitlab.com/auk-go/errorwrapper"
+	"gitlab.com/auk-go/errorwrapper/errfunc"
+	"gitlab.com/auk-go/errorwrapper/errnew"
+	"gitlab.com/auk-go/errorwrapper/errwrappers"
 )
 
 type ErrFuncMap struct {

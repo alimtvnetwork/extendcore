@@ -3,14 +3,14 @@ package mapenumds
 import (
 	"fmt"
 
-	"gitlab.com/evatix-go/core/converters"
-	"gitlab.com/evatix-go/core/coreinterface"
-	"gitlab.com/evatix-go/core/coreinterface/enuminf"
-	"gitlab.com/evatix-go/core/coretaskinfo"
-	"gitlab.com/evatix-go/enum/logtype"
-	"gitlab.com/evatix-go/enum/strtype"
-	"gitlab.com/evatix-go/errorwrapper"
-	"gitlab.com/evatix-go/errorwrapper/errnew"
+	"gitlab.com/auk-go/core/converters"
+	"gitlab.com/auk-go/core/coreinterface"
+	"gitlab.com/auk-go/core/coreinterface/enuminf"
+	"gitlab.com/auk-go/core/coretaskinfo"
+	"gitlab.com/auk-go/enum/logtype"
+	"gitlab.com/auk-go/enum/strtype"
+	"gitlab.com/auk-go/errorwrapper"
+	"gitlab.com/auk-go/errorwrapper/errnew"
 )
 
 type TaskInfoMap struct {

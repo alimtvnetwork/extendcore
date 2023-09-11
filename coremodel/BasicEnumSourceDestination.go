@@ -1,9 +1,9 @@
 package coremodel
 
 import (
-	"gitlab.com/evatix-go/core/coredata/corejson"
-	"gitlab.com/evatix-go/core/coreinstruction"
-	"gitlab.com/evatix-go/core/coreinterface/enuminf"
+	"gitlab.com/auk-go/core/coredata/corejson"
+	"gitlab.com/auk-go/core/coreinstruction"
+	"gitlab.com/auk-go/core/coreinterface/enuminf"
 )
 
 type BasicEnumSourceDestination struct {

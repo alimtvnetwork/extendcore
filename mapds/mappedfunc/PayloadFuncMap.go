@@ -3,19 +3,19 @@ package mappedfunc
 import (
 	"sort"
 
-	"gitlab.com/evatix-go/core/codestack"
-	"gitlab.com/evatix-go/core/corecsv"
-	"gitlab.com/evatix-go/core/coredata/coredynamic"
-	"gitlab.com/evatix-go/core/coredata/corejson"
-	"gitlab.com/evatix-go/core/coredata/corepayload"
-	"gitlab.com/evatix-go/core/coreinterface"
-	"gitlab.com/evatix-go/core/coreinterface/enuminf"
-	"gitlab.com/evatix-go/errorwrapper"
-	"gitlab.com/evatix-go/errorwrapper/errfunc"
-	"gitlab.com/evatix-go/errorwrapper/errnew"
-	"gitlab.com/evatix-go/errorwrapper/errtype"
-	"gitlab.com/evatix-go/errorwrapper/errwrappers"
-	"gitlab.com/evatix-go/errorwrapper/ref"
+	"gitlab.com/auk-go/core/codestack"
+	"gitlab.com/auk-go/core/corecsv"
+	"gitlab.com/auk-go/core/coredata/coredynamic"
+	"gitlab.com/auk-go/core/coredata/corejson"
+	"gitlab.com/auk-go/core/coredata/corepayload"
+	"gitlab.com/auk-go/core/coreinterface"
+	"gitlab.com/auk-go/core/coreinterface/enuminf"
+	"gitlab.com/auk-go/errorwrapper"
+	"gitlab.com/auk-go/errorwrapper/errfunc"
+	"gitlab.com/auk-go/errorwrapper/errnew"
+	"gitlab.com/auk-go/errorwrapper/errtype"
+	"gitlab.com/auk-go/errorwrapper/errwrappers"
+	"gitlab.com/auk-go/errorwrapper/ref"
 )
 
 type PayloadFuncMap struct {
@@ -321,9 +321,9 @@ func (it PayloadFuncMap) Get(name string) errfunc.PayloadWrapperExecutorFunc {
 
 // GetFuncPayloadWrapperCategoryByRawPayloads
 //
-//  deserializes payload to payload wrapper and
-//  then usages' payload category name to
-//  get to the executor
+//	deserializes payload to payload wrapper and
+//	then usages' payload category name to
+//	get to the executor
 func (it PayloadFuncMap) GetFuncPayloadWrapperCategoryByRawPayloads(
 	payloads []byte,
 ) (executorWrapper *PayloadFuncExecutorWrapper) {
@@ -334,9 +334,9 @@ func (it PayloadFuncMap) GetFuncPayloadWrapperCategoryByRawPayloads(
 
 // GetFuncPayloadWrapperNameByRawPayloads
 //
-//  deserializes payload to payload wrapper and
-//  then usages' payload name to
-//  get to the executor
+//	deserializes payload to payload wrapper and
+//	then usages' payload name to
+//	get to the executor
 func (it PayloadFuncMap) GetFuncPayloadWrapperNameByRawPayloads(
 	payloads []byte,
 ) (executorWrapper *PayloadFuncExecutorWrapper) {
@@ -347,10 +347,10 @@ func (it PayloadFuncMap) GetFuncPayloadWrapperNameByRawPayloads(
 
 // GetFuncPayloadWrapperByRawPayloads
 //
-//  deserializes payload to payload wrapper and
-//  then usages' the func executorNameGetter to get the executor name
-//  using payloadWrapper then get to the executor and
-//  returns the final wrapper
+//	deserializes payload to payload wrapper and
+//	then usages' the func executorNameGetter to get the executor name
+//	using payloadWrapper then get to the executor and
+//	returns the final wrapper
 func (it PayloadFuncMap) GetFuncPayloadWrapperByRawPayloads(
 	payloads []byte,
 	executorNameGetter PayloadWrapperToFuncNameGetterFunc,

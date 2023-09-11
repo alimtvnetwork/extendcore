@@ -1,6 +1,6 @@
 package mappedfunc
 
-import "gitlab.com/evatix-go/core/coredata/corepayload"
+import "gitlab.com/auk-go/core/coredata/corepayload"
 
 func payloadCategoryNameToExecutor(
 	payloadWrapper *corepayload.PayloadWrapper,

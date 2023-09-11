@@ -1,8 +1,8 @@
 package mappedfunc
 
 import (
-	"gitlab.com/evatix-go/core/coredata/corepayload"
-	"gitlab.com/evatix-go/errorwrapper"
+	"gitlab.com/auk-go/core/coredata/corepayload"
+	"gitlab.com/auk-go/errorwrapper"
 )
 
 type (

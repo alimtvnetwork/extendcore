@@ -6,11 +6,11 @@
 
 ## Git Clone
 
-`git clone https://gitlab.com/evatix-go/extendcore.git`
+`git clone https://gitlab.com/auk-go/extendcore.git`
 
 ### 2FA enabled, for linux
 
-`git clone https://[YourGitLabUserName]:[YourGitlabAcessTokenGenerateFromGitlabsTokens]@gitlab.com/evatix-go/extendcore.git`
+`git clone https://[YourGitLabUserName]:[YourGitlabAcessTokenGenerateFromGitlabsTokens]@gitlab.com/auk-go/extendcore.git`
 
 ### Prerequisites
 
@@ -21,25 +21,25 @@
 
 ## Installation
 
-`go get gitlab.com/evatix-go/extendcore`
+`go get gitlab.com/auk-go/extendcore`
 
 ### Go get issue for private package
 
 - Update git to 2.29
 - Enable go modules. (Windows : `go env -w GO111MODULE=on`, Unix : `export GO111MODULE=on`)
-- Add `gitlab.com/evatix-go` to go env private
+- Add `gitlab.com/auk-go` to go env private
 
 To set for Windows:
 
-`go env -w GOPRIVATE=[AddExistingOnes;]gitlab.com/evatix-go`
+`go env -w GOPRIVATE=[AddExistingOnes;]gitlab.com/auk-go`
 
 To set for Unix:
 
-`expoort GOPRIVATE=[AddExistingOnes;]gitlab.com/evatix-go`
+`expoort GOPRIVATE=[AddExistingOnes;]gitlab.com/auk-go`
 
 To go get as root:
 
-- [Linux, Go Get Fix with SSH GitLabs](https://gitlab.com/evatix-go/os-manuals/-/issues/43)
+- [Linux, Go Get Fix with SSH GitLabs](https://gitlab.com/auk-go/os-manuals/-/issues/43)
 
 ## Why extendcore?
 
@@ -79,7 +79,7 @@ Any other packages used
 
 ## Issues
 
-- [Create your issues](https://gitlab.com/evatix-go/extendcore/-/issues)
+- [Create your issues](https://gitlab.com/auk-go/extendcore/-/issues)
 
 ## Notes
 
@@ -87,4 +87,4 @@ Any other packages used
 
 ## License
 
-[Evatix MIT License](/LICENSE)
+[MIT License](/LICENSE)

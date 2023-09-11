@@ -1,9 +1,9 @@
 package mappedfunc
 
 import (
-	"gitlab.com/evatix-go/core/coredata/corejson"
-	"gitlab.com/evatix-go/core/coretaskinfo"
-	"gitlab.com/evatix-go/errorwrapper"
+	"gitlab.com/auk-go/core/coredata/corejson"
+	"gitlab.com/auk-go/core/coretaskinfo"
+	"gitlab.com/auk-go/errorwrapper"
 )
 
 type BaseExecutorInfo struct {

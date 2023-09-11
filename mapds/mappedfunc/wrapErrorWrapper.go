@@ -3,12 +3,12 @@ package mappedfunc
 import (
 	"errors"
 
-	"gitlab.com/evatix-go/core/codestack"
-	"gitlab.com/evatix-go/core/coredata/corejson"
-	"gitlab.com/evatix-go/core/coretaskinfo"
-	"gitlab.com/evatix-go/errorwrapper"
-	"gitlab.com/evatix-go/errorwrapper/errnew"
-	"gitlab.com/evatix-go/errorwrapper/errtype"
+	"gitlab.com/auk-go/core/codestack"
+	"gitlab.com/auk-go/core/coredata/corejson"
+	"gitlab.com/auk-go/core/coretaskinfo"
+	"gitlab.com/auk-go/errorwrapper"
+	"gitlab.com/auk-go/errorwrapper/errnew"
+	"gitlab.com/auk-go/errorwrapper/errtype"
 )
 
 type wrapErrorWithDetails struct{}
@@ -80,7 +80,7 @@ func (it wrapErrorWithDetails) notFoundError(
 
 // notFoundErrorWithPayloads
 //
-//  can be bytes or any
+//	can be bytes or any
 func (it wrapErrorWithDetails) notFoundErrorWithPayloads(
 	keyName string,
 	info *coretaskinfo.Info,

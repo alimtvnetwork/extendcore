@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	"gitlab.com/evatix-go/core/coredata/corepayload"
-	"gitlab.com/evatix-go/core/coretaskinfo"
-	"gitlab.com/evatix-go/core/errcore"
-	"gitlab.com/evatix-go/errorwrapper"
-	"gitlab.com/evatix-go/errorwrapper/errfunc"
-	"gitlab.com/evatix-go/errorwrapper/errnew"
-	"gitlab.com/evatix-go/extendcore/mapds/mappedfunc"
+	"gitlab.com/auk-go/core/coredata/corepayload"
+	"gitlab.com/auk-go/core/coretaskinfo"
+	"gitlab.com/auk-go/core/errcore"
+	"gitlab.com/auk-go/errorwrapper"
+	"gitlab.com/auk-go/errorwrapper/errfunc"
+	"gitlab.com/auk-go/errorwrapper/errnew"
+	"gitlab.com/auk-go/extendcore/mapds/mappedfunc"
 )
 
 func main() {
