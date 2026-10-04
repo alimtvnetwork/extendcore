@@ -26,8 +26,6 @@ bin/**/*.*
 **/.idea/**/*.*
 **/**/.idea/*.*
 **/**/.idea/**/*.*
-.idea/*.*
-.idea/**/*.*
 build/
 *.db
 *.db-journal
@@ -62,7 +60,13 @@ system-test/secrets.js
 system-test/*key.json
 *.lock
 *-lock.js*
-build/
 .vscode
 package-lock.json
 __pycache__
+
+# GitMap & Task Persistence
+.gitmap/backup/
+antigravity-resume_task.json
+.antigravity_resume_task.json
+antigravity_resume_task.json
+.antigravity-resume_task.json
